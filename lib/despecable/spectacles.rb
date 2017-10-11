@@ -20,9 +20,10 @@ module Despecable
     end
 
     def integer(name)
-      int = params[name].to_i
-      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: integer." if int.to_s != params[name].sub(/^0+/, "")
-      return int
+      Integer(params[name])
+    rescue ArgumentError
+      raise unless /^invalid value for Integer/ =~ $!.message
+      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: integer."
     end
 
     def string(name)
