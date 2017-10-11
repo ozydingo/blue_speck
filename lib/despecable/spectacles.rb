@@ -39,15 +39,17 @@ module Despecable
     end
 
     def date(name)
-      date = params[name] && Date.rfc3339(params[name] + "T00:00:00+00:00") rescue nil
-      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: date (e.g. '2012-12-31')." if params.key(name) && date.nil?
-      return date
+      Date.rfc3339(params[name] + "T00:00:00+00:00")
+    rescue ArgumentError
+      raise unless $!.message == "invalid date"
+      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: date (e.g. '2012-12-31')."
     end
 
     def datetime(name)
-      date = params[name] && DateTime.rfc3339(params[name]) rescue nil
-      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: rfc3339 datetime (e.g. 2012-12-31T19:00:00-05:00')" if params.key(name) && date.nil?
-      return date
+      DateTime.rfc3339(params[name])
+    rescue ArgumentError
+      raise unless $!.message == "invalid date"
+      raise Despecable::InvalidParameterError, "Invalid value for param: '#{name}'. Required type: rfc3339 datetime (e.g. '2009-06-19T00:00:00-04:00')."
     end
   end
 end
