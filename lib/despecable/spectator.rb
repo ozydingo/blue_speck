@@ -8,33 +8,36 @@ module Despecable
     end
 
     def integer(name, options = {})
-      params[name] = @spectacles.integer(name) if params.key?(name)
-      @spectacles.validate_param(name, options)
-      return params[name]
+      _spec(name, :integer, options)
     end
 
     def string(name, options = {})
-      params[name] = @spectacles.string(name) if params.key?(name)
-      @spectacles.validate_param(name, options)
-      return params[name]
+      _spec(name, :string, options)
     end
 
     def boolean(name, options = {})
-      params[name] = @spectacles.boolean(name) if params.key?(name)
-      @spectacles.validate_param(name, options)
-      return params[name]
+      _spec(name, :boolean, options)
     end
 
     def date(name, options = {})
-      params[name] = @spectacles.date(name) if params.key?(name)
+      _spec(name, :date, options)
+    end
+
+    def datetime(name, options = {})
+      _spec(name, :datetime, options)
+    end
+
+    private
+
+    def _spec(name, type, options = {})
+      if params.key?(name)
+        params[name] = @spectacles.public_send(type, name)
+      elsif options.key?(:default)
+        params[name] = options[:default]
+      end
       @spectacles.validate_param(name, options)
       return params[name]
     end
 
-    def datetime(name, options = {})
-      params[name] = @spectacles.datetime(name) if params.key?(name)
-      @spectacles.validate_param(name, options)
-      return params[name]
-    end
   end
 end
