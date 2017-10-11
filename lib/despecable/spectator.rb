@@ -30,16 +30,17 @@ module Despecable
     private
 
     def _spec(name, type, options = {})
-      if params.key?(name)
-        params[name] = @spectacles.public_send(type, name)
-      elsif options.key?(:default)
+      if !params.key?(name) && options[:default]
         params[name] = options[:default]
+      elsif options[:arrayable] && @spectacles.arrayable?(params[name])
+        values = @spectacles.arrayify(params[name])
+        params[name] = values.map{|val| @spectacles.read(val, type, options)}
+      else
+        value = @spectacles.read(params[name], type, options)
+        params[name] = value if params.key?(name)
       end
-      @spectacles.validate_param(name, options)
-      return params[name]
     rescue ::Despecable::DespecableError
       ::Kernel.raise $!.insert_name_here(name)
     end
-
   end
 end

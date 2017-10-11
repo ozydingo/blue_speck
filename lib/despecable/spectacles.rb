@@ -9,6 +9,12 @@ module Despecable
       value.to_s.split(",")
     end
 
+    def read(value, type, options)
+      value = public_send(type, value) unless value.nil?
+      validate_param(value, options)
+      return value
+    end
+
     def validate_param(value, options)
       validate_param_presence(value) if options[:required]
       validate_param_value(value, options[:in]) if options.key?(:in) && !value.nil?
