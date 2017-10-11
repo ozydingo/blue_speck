@@ -4,7 +4,7 @@ module Despecable
       Despecable::Me.new(params.deep_dup).doit(&blk)
     end
 
-    def dspec!(&blk)
+    def despec!(&blk)
       Despecable::Me.new(params).doit(&blk)
     end
   end
