@@ -1,7 +1,7 @@
 module Despecable; end
 
 require "despecable/action_controller.rb"
-require "despecable/controller.rb"
+require "despecable/me.rb"
 require "despecable/spectator.rb"
 require "despecable/spectacles.rb"
 
