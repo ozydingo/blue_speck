@@ -1,9 +1,9 @@
 # despecable
 Easy self-documenting parameter specifications for Rails API routes
 
-Keeping API docs in sync with the code is a pain. It's nasty. Vulgar. It's ...
+Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 
-... Despecable.
+... despecable.
 
 So let's make it easy!
 
@@ -40,7 +40,7 @@ First, let me note that `despec!` modifies the `params` hash in place. This is m
 
 ## Parameter Coercion
 
-The first thing you notive with the above block is we have a few obious type declaraions. `:api_key` will be read as a `String`, `id` as an `Integer`, and so on. Currently, `Despecable` suppoers:
+The first thing you notive with the above block is we have a few obious type declaraions. `:api_key` will be read as a `String`, `id` as an `Integer`, and so on. Currently, `Despecable` supports:
 
 - `string`
 - `integer`
@@ -109,8 +109,8 @@ The root of the magic happens in a `Despecable::Spectator`. This `BasicObject` s
 
 ```ruby
 class Despecable::Spectacle
-  def datetime(name)
-    Chronic.parse(param[name]) or raise Despecable::InvalidParameterError, "Uninterpretable value for #{name}: date required!"
+  def datetime(value)
+    Chronic.parse(value) or raise Despecable::InvalidParameterError, "Required: date string (e.g. 'tomorrow' or '2017-01-01')"
   end
 end
 ```
