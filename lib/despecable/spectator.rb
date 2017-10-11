@@ -37,6 +37,8 @@ module Despecable
       end
       @spectacles.validate_param(name, options)
       return params[name]
+    rescue ::Despecable::DespecableError
+      ::Kernel.raise $!.insert_name_here(name)
     end
 
   end
