@@ -18,7 +18,7 @@ class WidgetsController < ApplicationController
   def index
     despec! do
       string :api_key, required: true
-      integer :id, in: 1..999_999_999
+      integer :id, in: 1..999_999_999, arrayable: true
       string :name
       string :function, in: ["foo", "bar"]
       datetime :created_after
@@ -65,6 +65,10 @@ Next, you might notice the first `required: true` attached to the `string :api_k
 ### Parameter Verification
 
 Lastly, you should see the `string :function, in: ["foo", "bar"]`. This will check that the coerced param is contained within the set (`Array` or `Range`) specified. If not, it will raise a `Despecable::IncorrectParameterError`
+
+### Parameter Arrayification
+
+Even more lastly, you'll notive the `arrayify: true` option on the `id` param. This option tells `Despecable` that the specified param can be received as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). If either of these conditions are detected, `Despicable` will convert the parameter value into an Array and validate each value against the other options for that parameter spec.
 
 ## Despecable Errors
 
