@@ -1,10 +1,11 @@
 module Despecable
   class Spectator < BasicObject
-    attr_reader :params
+    attr_reader :params, :specd
 
     def initialize(params)
       @params = params
       @spectacles = ::Despecable::Spectacles.new
+      @specd = []
     end
 
     def integer(name, options = {})
@@ -30,6 +31,7 @@ module Despecable
     private
 
     def _spec(name, type, options = {})
+      @specd.append(name)
       if !params.key?(name) && options[:default]
         params[name] = options[:default]
       elsif options[:arrayable] && @spectacles.arrayable?(params[name])
