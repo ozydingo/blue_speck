@@ -4,7 +4,7 @@ module Despecable
 
     def initialize(params)
       @params = params
-      @spectacles = ::Despecable::Spectacles.new(params)
+      @spectacles = ::Despecable::Spectacles.new
     end
 
     def integer(name, options = {})
