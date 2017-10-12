@@ -12,9 +12,9 @@ module Despecable
       @specd = []
     end
 
-    def doit(strict: false, &blk)
+    def doit(*args, strict: false, &blk)
       spectator = Despecable::Spectator.new(@params)
-      spectator.instance_eval(&blk) unless blk.nil?
+      spectator.instance_exec(*args, &blk) unless blk.nil?
       @specd += spectator.specd
       despecably_strict if strict
       return spectator.params
