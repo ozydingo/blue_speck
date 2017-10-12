@@ -2,10 +2,21 @@ module Despecable
   class Spectator < BasicObject
     attr_reader :params, :specd
 
-    def initialize(params)
+    def initialize(params, macros = {}, fragments = {})
       @params = params
+      @macros = macros
+      @fragments = fragments
       @spectacles = ::Despecable::Spectacles.new
       @specd = []
+    end
+
+    def macro(name)
+      macro = @macros[name] or ::Kernel.raise ::Despecable::DespecableError, "No macro named '#{name}' was found"
+      instance_eval(&macro)
+    end
+
+    def fragment(name)
+      @fragments[name] or ::Kernel.raise ::Despecable::DespecableError, "No fragment named '#{name}' was found"
     end
 
     def integer(name, options = {})

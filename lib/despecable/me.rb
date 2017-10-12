@@ -9,12 +9,26 @@ module Despecable
     def initialize(params, supplied_params = nil)
       @supplied_params = (supplied_params || params).deep_dup
       @params = params
+      @macros = {}
+      @fragments = {}
       @specd = []
     end
 
+    def add_macro(name, &macro)
+      name.is_a?(Symbol) or raise ::Despecable::DespecableError, "name must be a Symbol" 
+      macro.is_a?(Proc) or raise ::Despecable::DespecableError, "macro must be a Proc"
+      @macros.merge!(name => macro)
+    end
+
+    def add_fragment(name, fragment)
+      name.is_a?(Symbol) or raise ::Despecable::DespecableError, "name must be a Symbol" 
+      fragment.is_a?(Hash) or raise ::Despecable::DespecableError, "fragment must be a Hash"
+      @fragments.merge!(name => fragment)
+    end
+
     def doit(*args, strict: false, &blk)
-      spectator = Despecable::Spectator.new(@params)
-      spectator.instance_exec(*args, &blk) unless blk.nil?
+      spectator = Despecable::Spectator.new(@params, @macros, @fragments)
+      spectator.instance_eval(&blk) unless blk.nil?
       @specd += spectator.specd
       despecably_strict if strict
       return spectator.params
