@@ -10,9 +10,10 @@ module Despecable
       @specd = []
     end
 
-    def macro(name)
+    def macro(name, *args)
       macro = @macros[name] or ::Kernel.raise ::Despecable::DespecableError, "No macro named '#{name}' was found"
-      instance_eval(&macro)
+      args.length == macro.arity or ::Kernel.raise ::ArgumentError, "Wrong number of arguments to macro '#{name}' (given #{args.length}, expected #{macro.arity})"
+      instance_exec(*args, &macro)
     end
 
     def fragment(name)
