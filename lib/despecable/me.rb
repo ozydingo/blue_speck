@@ -9,21 +9,19 @@ module Despecable
     def initialize(params, supplied_params = nil)
       @supplied_params = (supplied_params || params).deep_dup
       @params = params
-      @spectator = Despecable::Spectator.new(@params)
+      @specd = []
     end
 
     def doit(strict: false, &blk)
-      @spectator.instance_eval(&blk) unless blk.nil?
+      spectator = Despecable::Spectator.new(@params)
+      spectator.instance_eval(&blk) unless blk.nil?
+      @specd += spectator.specd
       despecably_strict if strict
-      return @spectator.params
-    end
-
-    def specd
-      @spectator.specd.map(&:to_s)
+      return spectator.params
     end
 
     def unspecd
-      @supplied_params.keys.map(&:to_s) - specd
+      @supplied_params.keys.map(&:to_s) - @specd.map(&:to_s)
     end
 
     def despecably_strict
