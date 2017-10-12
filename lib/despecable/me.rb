@@ -8,7 +8,7 @@ module Despecable
     end
 
     def doit(&blk)
-      @spectator.instance_eval(&blk)
+      @spectator.instance_eval(&blk) unless blk.nil?
       return @spectator.params
     end
 
