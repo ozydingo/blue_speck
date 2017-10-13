@@ -7,16 +7,19 @@ Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 
 So let's make it easy!
 
-## Parameter Specificaion
+## Basic Usage
+
+### Parameter Specificaion
 
 The first thing any developer wants to know about you api are: what are the endpoints (routes) and what are the parameter requirements for each. Despecable was born out of a desire to standardize this layer of API writing.
 
+<a id='example1' name='example1'></a>
 ```ruby
 class WidgetsController < ApplicationController
   include Despecable::ActionConntroller
 
   def index
-    despec! do
+    despec!(strict: true) do
       string :api_key, required: true
       integer :id, in: 1..999_999_999, arrayable: true
       string :name
@@ -38,7 +41,7 @@ What functionality is that? I'm glad you asked!
 
 First, let me note that `despec!` modifies the `params` hash in place. This is my typical use case: just get the params into the format I want them. Use `despec` (without the bang) if you do not want this behavior: it will `deep_dup` the params hash first.
 
-## Parameter Coercion
+### Parameter Coercion
 
 The first thing you notive with the above block is we have a few obious type declaraions. `:api_key` will be read as a `String`, `id` as an `Integer`, and so on. Currently, `Despecable` supports:
 
@@ -56,29 +59,30 @@ If the parameter supplied cannot be coerced into the desired format, `Despecable
 
 > Invalid value for param: 'active'. Require type: boolean (1/0 or true/false)
 
-## Parameter Verification
+### Parameter Validation
 
-### Parameter Presence
+#### Presence
 
 Next, you might notice the first `required: true` attached to the `string :api_key` spec. This simply checks for the presnces of the `api_key` param, and will raise a `Despecable::MissingParameterError` if absent.
 
-### Parameter Verification
+#### Value
 
 Lastly, you should see the `string :function, in: ["foo", "bar"]`. This will check that the coerced param is contained within the set (`Array` or `Range`) specified. If not, it will raise a `Despecable::IncorrectParameterError`
 
-### Parameter Arrayification
+#### Arrayification
 
 Even more lastly, you'll notive the `arrayify: true` option on the `id` param. This option tells `Despecable` that the specified param can be received as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). If either of these conditions are detected, `Despicable` will convert the parameter value into an Array and validate each value against the other options for that parameter spec.
 
-## Despecable Errors
+### Despecable Errors
 
-By now, you may have noticed that our mode of operation is to raise errors when a parameter doesn't meet the spec. But you want the user to see these messages, not for some internal server error to bring the request crashing into a million pieces. I suggest implmeneting this functionality something like so:
+The coolest thing about using `Despecable` is that it makes it so easy to generate helpful and cosistent messaging to your API's users about what they're not doing with with your API. So far, we've only talked about spec violations raising errors. But you want the user to see these messages, not for some internal server error to bring the request crashing into a million pieces. I suggest implmeneting this functionality something like so:
 
 ```ruby
 class WidgetsController < ActionController::Base
   rescue_from Despecable::InvalidParameterError, with: :bad_request
   rescue_from Despecable::IncorrectParameterError, with: :bad_request
   rescue_from Despecable::MissingParameterError, with: :bad_request
+  rescue_from Despecable::UnrecognizedParameterError, with: :bad_request
 
   def bad_request(exception)
     render json: {error: exception.message}, status: 400
@@ -88,7 +92,7 @@ end
 
 You can, of course, use different methods for each, but I see little reason to do so.
 
-## Despecable Controllers
+### Despecable Controllers
 
 I've given the example above about including `Despecable::ActionController` in `WidgetsController`. A likely preferred pattern is to include this module in a base API controller from which all other API controller inherit. This might then look like:
 
@@ -102,8 +106,57 @@ class WidgetsController < ApiController
 end
 ```
 
-<a href='monkey-patching'></a>
-## Monkey Patching
+## Advanced Usage
+
+### Strict Mode
+
+An optional flavor of `Despecable` is "strict mode", where the API will complain about extra parameters not recognized by the route. Most APIs simply ignore these extra parmaeters. I don't like this because it's easy to make a small typo in a parameter name, and the developer is left guessing as to why they are not getting the desired functionality.
+
+Enable strict mode by passing the keyword arg `strict: true` to the `despec` block, as in the first [examnple above](#example1). Any parameters not yet specified in an evaluated `despec` block will be listed in a `Despecable::UnrecognizedParameterError`.
+
+Here's the cooler part: you can use multiple `despec` blocks, and `Despecable` will remember all of the parameters encountered in a given action. So if you have a `before_filter` that looks for some parameter -- say, `api_key`, just add a `despec` block for that parameter in your before_filter and it will be allowed in the strict block.
+
+Here's an example of what that might look like:
+
+```ruby
+class ApiController < ActionController::Base
+  before_filter :get_api_key
+
+  def get_api_key
+    despec! do
+      string :api_keuy
+    end
+    @api_key = ApiKey.find_by(key: params[:api_key]) or raise ApiError, "Invalid API Key"
+  end
+end
+
+class WidgetsController < ApiControler
+  def show
+    despec!(strict: true) do
+      integer :id, required: true
+    end
+  end
+end
+```
+
+Note that `strict` is not set to `true` in the before_filter, otherwise it would immediately complain about any parameters other than `api_key`!
+
+If you have an actoun with no (additional) parameters but wish to use strict mode, simply dont pass a block:
+
+`despec!(struct: true)`
+
+### Dynamic specs
+
+The code inside a `despec` block does not have access to your controller methods or variables. To pass in custom or dynamic values into a `despec` block, pass them in as argument to the block. For example, let's say you have a `format` parameter whose allowed values are dynamic (e.g. based on the user, etc). Here we assume you have defined a method or variable `formats` that contains or computes the array of allowed values. Use it thusly:
+
+```ruby
+despec!(formats, strict: true) do |allowed_formats|
+  string :format, in: allowed_formats
+end
+```
+
+<a id='monkey-patching' name='monkey-patching'></a>
+### Monkey Patching
 
 The root of the magic happens in a `Despecable::Spectator`. This `BasicObject` subclass is responsible for interpreting the block you pass to the `despec` method. It dons a pair of `Despecable::Spectacles` to help it read and verify the parameters. So if you want to modify the parsing of `DateTime` from the default `rfc3999` parsing to use, for example, the [Chronic](https://github.com/mojombo/chronic) gem, you can monkey-patch:
 
@@ -117,6 +170,6 @@ end
 
 Note that these methods on `Spectacle` do not get called if the param is not present, so you don't have to worry about handling the `nil` case.
 
-## Human Patching
+### Human Patching
 
 If you have more legit contributions to make to `Despecable`, submit a PR! Please keep your commits clean and rebased off of the current master branch, and message your commits with `type(concern) [initials] message`; e.g. `feat(Chronic) [AS] Add Chronic parsing as a datetime option`. `type` can be `feat`, `fix`, `refactor`, `doc`, or get creative.
