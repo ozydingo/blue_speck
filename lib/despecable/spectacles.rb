@@ -32,7 +32,14 @@ module Despecable
       Integer(value)
     rescue ArgumentError
       raise unless /^invalid value for Integer/ =~ $!.message
-      raise Despecable::InvalidParameterError, "Required type: integer."
+      raise Despecable::InvalidParameterError, "Required type: integer"
+    end
+
+    def float
+      Float(value)
+    rescue ArgumentError
+      raise unless /^invalid value for Float/ =~ $!.message
+      raise Despecable::InvalidParameterError, "Required type: float"
     end
 
     def string(value)
@@ -44,7 +51,7 @@ module Despecable
       case value.to_s
       when "true", "1" then true
       when "false", "0", nil then false
-      else raise Despecable::InvalidParameterError, "Require type: boolean (1/0 or true/false)"
+      else raise Despecable::InvalidParameterError, "Required type: boolean (1/0 or true/false)"
       end
     end
 
@@ -60,6 +67,15 @@ module Despecable
     rescue ArgumentError
       raise unless $!.message == "invalid date"
       raise Despecable::InvalidParameterError, "Required type: rfc3339 datetime (e.g. '2009-06-19T00:00:00-04:00')."
+    end
+
+    def file(value)
+      raise Despecable::InvalidParameterError, "Required type: file upload" if !(value.respond_to?(:original_filename) && value.original_filename.present?)
+      return value
+    end
+
+    def any(value)
+      value
     end
   end
 end

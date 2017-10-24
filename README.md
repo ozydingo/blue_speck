@@ -47,9 +47,12 @@ The first thing you notice with the above block is we have a few obvious type de
 
 - `string`
 - `integer`
+- `float`
 - `boolean`
 - `datetime`
 - `date`
+- `file`
+- `any`
 
 Each of these comes with its own parsing method. Custom parsing (e.g. for `:datetime`) is in the works, but for now feel free to monkey patch the `datetime` method in the `Despecable::Spectacle` class. See the [Monkey Patching](#monkey-patching) section, below, for more details.
 

@@ -28,6 +28,18 @@ module Despecable
       _spec(name, :datetime, options)
     end
 
+    def float(name, options = {})
+      _spec(name, :float, options)
+    end
+
+    def file(name, options = {})
+      _spec(name, :file, options)
+    end
+
+    def any(name, options = {})
+      _spec(name, :any, options)
+    end
+
     private
 
     def _spec(name, type, options = {})
