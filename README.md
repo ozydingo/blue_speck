@@ -35,7 +35,7 @@ class WidgetsController < ApplicationController
 end
 ```
 
-"Woah", you say, "you've just added 9 lines of code to a 2-line method!". You're damn right I did. You have to write your API docs anyway. Why not write it in the method itself, so you get functional docs, instead of keeping a separate text file with your documnetation that you have to keep in sync?
+"Woah", you say, "you've just added 9 lines of code to a 2-line method!". You're damn right I did. You have to write your API docs anyway. Why not write it in the method itself, so you get functional docs, instead of keeping a separate text file with your documentation that you have to keep in sync?
 
 What functionality is that? I'm glad you asked!
 
@@ -43,7 +43,7 @@ First, let me note that `despec!` modifies the `params` hash in place. This is m
 
 ### Parameter Coercion
 
-The first thing you notive with the above block is we have a few obious type declaraions. `:api_key` will be read as a `String`, `id` as an `Integer`, and so on. Currently, `Despecable` supports:
+The first thing you notice with the above block is we have a few obvious type declarations. `:api_key` will be read as a `String`, `id` as an `Integer`, and so on. Currently, `Despecable` supports:
 
 - `string`
 - `integer`
@@ -53,7 +53,7 @@ The first thing you notive with the above block is we have a few obious type dec
 
 Each of these comes with its own parsing method. Custom parsing (e.g. for `:datetime`) is in the works, but for now feel free to monkey patch the `datetime` method in the `Despecable::Spectacle` class. See the [Monkey Patching](#monkey-patching) section, below, for more details.
 
-You can provide a `default` value to any of these methods. *YOUR DEFAULT VALUE IS NOT VALIDATED!* This will take effect if the parameter is not found. If `default` is not provded, then `nil` will be returned for any parameter not supplied in the call.
+You can provide a `default` value to any of these methods. *YOUR DEFAULT VALUE IS NOT VALIDATED!* This will take effect if the parameter is not found. If `default` is not provided, then `nil` will be returned for any parameter not supplied in the call.
 
 If the parameter supplied cannot be coerced into the desired format, `Despecable` will raise a `Despecable::InvalidParamter` error with a useful message that you can safely pass directly to the client along with your favorite 400's status code. For example:
 
@@ -71,11 +71,11 @@ Lastly, you should see the `string :function, in: ["foo", "bar"]`. This will che
 
 #### Arrayification
 
-Even more lastly, you'll notive the `arrayify: true` option on the `id` param. This option tells `Despecable` that the specified param can be received as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). If either of these conditions are detected, `Despicable` will convert the parameter value into an Array and validate each value against the other options for that parameter spec.
+Even more lastly, you'll notice the `arrayify: true` option on the `id` param. This option tells `Despecable` that the specified param can be received as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). If either of these conditions are detected, `Despicable` will convert the parameter value into an Array and validate each value against the other options for that parameter spec.
 
 ### Despecable Errors
 
-The coolest thing about using `Despecable` is that it makes it so easy to generate helpful and cosistent messaging to your API's users about what they're not doing with with your API. So far, we've only talked about spec violations raising errors. But you want the user to see these messages, not for some internal server error to bring the request crashing into a million pieces. I suggest implmeneting this functionality something like so:
+The coolest thing about using `Despecable` is that it makes it so easy to generate helpful and cosistent messaging to your API's users about what they're not doing with with your API. So far, we've only talked about spec violations raising errors. But you want the user to see these messages, not for some internal server error to bring the request crashing into a million pieces. I suggest implementing this functionality something like so:
 
 ```ruby
 class WidgetsController < ActionController::Base
@@ -141,7 +141,7 @@ end
 
 Note that `strict` is not set to `true` in the before_filter, otherwise it would immediately complain about any parameters other than `api_key`!
 
-If you have an actoun with no (additional) parameters but wish to use strict mode, simply dont pass a block:
+If you have an action with no (additional) parameters but wish to use strict mode, simply don't pass a block:
 
 `despec!(struct: true)`
 
