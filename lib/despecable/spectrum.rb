@@ -7,12 +7,16 @@ module Despecable
     end
 
     class << self
-      def action(name, &blk)
-        @despecs[name.to_s] = blk
+      def action(name, description = nil, &blk)
+        @despecs[name.to_s] = {desc: description, despec: blk}
       end
 
       def get_despec(action)
-        @despecs[action.to_s]
+        @despecs[action.to_s] && @despecs[action.to_s][:despec]
+      end
+
+      def get_description(action)
+        @despecs[action.to_s] && @despecs[action.to_s][:description]
       end
 
       def despec?(action)
