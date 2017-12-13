@@ -10,6 +10,6 @@ class Despecable::DespecableError < StandardError
   end
 
   def introduction(name)
-    "Invalid value for paramter #{name}."
+    "Invalid value for parameter #{name}."
   end
 end
