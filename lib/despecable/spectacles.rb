@@ -35,7 +35,7 @@ module Despecable
       raise Despecable::InvalidParameterError, "Required type: integer"
     end
 
-    def float
+    def float(value)
       Float(value)
     rescue ArgumentError
       raise unless /^invalid value for Float/ =~ $!.message
