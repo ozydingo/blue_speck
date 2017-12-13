@@ -21,7 +21,7 @@ class WidgetsController < ApplicationController
   def index
     despec!(strict: true) do
       string :api_key, required: true
-      integer :id, in: 1..999_999_999, arrayable: true
+      integer :id, in: 1..999_999_999, array: true
       string :name
       string :function, in: ["foo", "bar"]
       datetime :created_after
@@ -74,7 +74,9 @@ Lastly, you should see the `string :function, in: ["foo", "bar"]`. This will che
 
 #### Arrayification
 
-Even more lastly, you'll notice the `arrayify: true` option on the `id` param. This option tells `Despecable` that the specified param can be received as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). If either of these conditions are detected, `Despicable` will convert the parameter value into an Array and validate each value against the other options for that parameter spec.
+Even more lastly, you'll notice the `array: true` option on the `id` param. This option tells `Despecable` that the specified param will be interpreted as an array: either a comma-separated string (`x=1,2`) or a legit Array (using Rails `x[]=1&x[]=2` param string syntax). In the former case, `Despicable` will convert the parameter value into an Array by spliting on "," (note: this can result in a one-element array) and validate each value against the other options for that parameter spec.
+
+An alternative keyword, `arrayable`, will only split if commas are present. This keyword is (yes, already) deprecated in favor of the more consistent behavior of `array`.
 
 ### Despecable Errors
 

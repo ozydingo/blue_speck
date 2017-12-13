@@ -46,7 +46,11 @@ module Despecable
       @specd.append(name)
       if !params.key?(name) && options[:default]
         params[name] = options[:default]
+      elsif options[:array]
+        values = @spectacles.arrayify(params[name])
+        params[name] = values.map{|val| @spectacles.read(val, type, options)}
       elsif options[:arrayable] && @spectacles.arrayable?(params[name])
+        # TODO: deprecate arrayable in favor of array
         values = @spectacles.arrayify(params[name])
         params[name] = values.map{|val| @spectacles.read(val, type, options)}
       else
