@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    despecable (0.0.5)
+    despecable (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -37,4 +37,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   1.14.3
+   1.15.4
