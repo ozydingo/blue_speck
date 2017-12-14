@@ -43,7 +43,7 @@ module Despecable
     private
 
     def _spec(name, type, options = {})
-      @specd.append(name)
+      @specd << (name)
       if !params.key?(name) && options[:default]
         params[name] = options[:default]
       elsif options[:array]
