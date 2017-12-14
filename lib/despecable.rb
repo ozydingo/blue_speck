@@ -1,5 +1,7 @@
 module Despecable; end
 
+require "date"
+
 require "despecable/action_controller.rb"
 require "despecable/me.rb"
 require "despecable/spectator.rb"
