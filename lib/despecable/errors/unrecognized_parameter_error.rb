@@ -1,5 +1,5 @@
 class Despecable::UnrecognizedParameterError < Despecable::DespecableError
-  def intro_message(name)
+  def introduction(name)
     "Unrecognized parameter name: '#{name}'"
   end
 end
