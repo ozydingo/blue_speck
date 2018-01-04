@@ -27,7 +27,7 @@ module Despecable
     def despecably_strict
       if !unspecd.empty?
         list = unspecd.map{|x| "'#{x}'"}.join(", ")
-        raise Despecable::UnrecognizedParameterError, "Unrecognized parameters: #{list}"
+        raise Despecable::UnrecognizedParameterError, "Unrecognized parameters #{list}"
       end
     end
   end
