@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    despecable (0.1.0)
+    despecable (0.1.1)
 
 GEM
   remote: https://rubygems.org/

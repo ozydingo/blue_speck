@@ -7,9 +7,7 @@ Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 
 So let's make it easy!
 
-## What's new
-### v 0.1.1
-Revamped the test suite to make development easier.
+## What's new (just the highlights)
 ### v 0.1.0
 Added basic rspec test suite!
 ### v 0.0.0
