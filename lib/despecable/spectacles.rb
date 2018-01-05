@@ -9,72 +9,72 @@ module Despecable
       value.to_s.split(",")
     end
 
-    def read(value, type, options)
-      value = public_send(type, value) unless value.nil?
-      validate_param(value, options)
+    def read(name, value, type, options)
+      value = public_send(type, name, value) unless value.nil?
+      validate_param(name, value, options)
       return value
     end
 
-    def validate_param(value, options)
-      validate_param_presence(value) if options[:required]
-      validate_param_value(value, options[:in]) if options.key?(:in) && !value.nil?
+    def validate_param(name, value, options)
+      validate_param_presence(name, value) if options[:required]
+      validate_param_value(name, value, options[:in]) if options.key?(:in) && !value.nil?
     end
 
-    def validate_param_presence(value)
-      raise Despecable::MissingParameterError if value.nil?
+    def validate_param_presence(name, value)
+      raise Despecable::MissingParameterError.new("Missing required parameter: #{name}", parameters: name) if value.nil?
     end
 
-    def validate_param_value(value, allowed_values)
-      raise Despecable::IncorrectParameterError, "Value received: #{value}." if !allowed_values.include?(value)
+    def validate_param_value(name, value, allowed_values)
+      raise Despecable::IncorrectParameterError.new("Unacceptable value for parameter: #{name}", parameters: name) if !allowed_values.include?(value)
     end
 
-    def integer(value)
+    def integer(name, value)
       Integer(value)
     rescue ArgumentError
       raise unless /^invalid value for Integer/ =~ $!.message
-      raise Despecable::InvalidParameterError, "Required type: integer"
+      raise Despecable::InvalidParameterError.new("Integer type required for parameter: #{name}", parameters: name)
     end
 
-    def float(value)
+    def float(name, value)
       Float(value)
     rescue ArgumentError
       raise unless /^invalid value for Float/ =~ $!.message
-      raise Despecable::InvalidParameterError, "Required type: float"
+      raise Despecable::InvalidParameterError.new("Float type required for parameter: #{name}", parameters: name)
     end
 
-    def string(value)
+    def string(name, value)
       # This is really a no-op.
       value.to_s
     end
 
-    def boolean(value)
+    def boolean(name, value)
       case value.to_s
       when "true", "1" then true
       when "false", "0", nil then false
-      else raise Despecable::InvalidParameterError, "Required type: boolean (1/0 or true/false)"
+      else raise Despecable::InvalidParameterError.new("Boolean type (1/0 or true/false) required for parameter: #{name}", parameters: name)
       end
     end
 
-    def date(value)
+    def date(name, value)
       Date.rfc3339(value + "T00:00:00+00:00")
     rescue ArgumentError
       raise unless $!.message == "invalid date"
-      raise Despecable::InvalidParameterError, "Required type: date (e.g. '2012-12-31')."
+      raise Despecable::InvalidParameterError.new("Date type (e.g. '2012-12-31') required for parameter: #{name}", parameters: name)
     end
 
-    def datetime(value)
+    def datetime(name, value)
       DateTime.rfc3339(value)
     rescue ArgumentError
       raise unless $!.message == "invalid date"
-      raise Despecable::InvalidParameterError, "Required type: rfc3339 datetime (e.g. '2009-06-19T00:00:00-04:00')."
+      raise Despecable::InvalidParameterError.new("Rfc3339 datetime type (e.g. '2009-06-19T00:00:00-04:00') required for parameter: #{name}", parameters: name)
     end
 
-    def file(value)
-      raise Despecable::InvalidParameterError, "Required type: file upload" if !(value.respond_to?(:original_filename) && value.original_filename.present?)
+    def file(name, value)
+      raise Despecable::InvalidParameterError.new("File upload type required for parameter: #{name}" , parameters: name) if !(value.respond_to?(:original_filename) && value.original_filename.present?)
       return value
     end
 
-    def any(value)
+    def any(name, value)
       value
     end
   end

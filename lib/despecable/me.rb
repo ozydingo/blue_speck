@@ -7,7 +7,7 @@ module Despecable
     # pass in request.query_parameters (GET) and/or request.request_parameters (POST)
     # for supplied_params to correctly get only the user-supplied parameters.
     def initialize(params, supplied_params = nil)
-      @supplied_params = (supplied_params || params).deep_dup
+      @supplied_params = (supplied_params || params).dup
       @params = params
       @specd = []
     end
@@ -27,7 +27,8 @@ module Despecable
     def despecably_strict
       if !unspecd.empty?
         list = unspecd.map{|x| "'#{x}'"}.join(", ")
-        raise Despecable::UnrecognizedParameterError, "Unrecognized parameters #{list}"
+        error = Despecable::UnrecognizedParameterError.new("Unrecognized parameters supplied: #{list}", parameters: unspecd)
+        raise error
       end
     end
   end

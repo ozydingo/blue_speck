@@ -48,17 +48,15 @@ module Despecable
         params[name] = options[:default]
       elsif options[:array]
         values = @spectacles.arrayify(params[name])
-        params[name] = values.map{|val| @spectacles.read(val, type, options)}
+        params[name] = values.map{|val| @spectacles.read(name, val, type, options)}
       elsif options[:arrayable] && @spectacles.arrayable?(params[name])
         # TODO: deprecate arrayable in favor of array
         values = @spectacles.arrayify(params[name])
-        params[name] = values.map{|val| @spectacles.read(val, type, options)}
+        params[name] = values.map{|val| @spectacles.read(name, val, type, options)}
       else
-        value = @spectacles.read(params[name], type, options)
+        value = @spectacles.read(name, params[name], type, options)
         params[name] = value if params.key?(name)
       end
-    rescue ::Despecable::DespecableError
-      ::Kernel.raise $!.insert_name_here(name)
     end
   end
 end
