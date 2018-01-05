@@ -8,6 +8,8 @@ Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 So let's make it easy!
 
 ## What's new
+### v 0.1.1
+Revamped the test suite to make development easier.
 ### v 0.1.0
 Added basic rspec test suite!
 ### v 0.0.0
@@ -15,7 +17,7 @@ A gem was born.
 
 ## Basic Usage
 
-### Parameter Specificaion
+### Parameter Specification
 
 The first thing any developer wants to know about you api are: what are the endpoints (routes) and what are the parameter requirements for each. Despecable was born out of a desire to standardize this layer of API writing.
 
@@ -90,18 +92,23 @@ The coolest thing about using `Despecable` is that it makes it so easy to genera
 
 ```ruby
 class WidgetsController < ActionController::Base
-  rescue_from Despecable::InvalidParameterError, with: :bad_request
-  rescue_from Despecable::IncorrectParameterError, with: :bad_request
-  rescue_from Despecable::MissingParameterError, with: :bad_request
-  rescue_from Despecable::UnrecognizedParameterError, with: :bad_request
+  rescue_from Despecable::DespecableError, with: :parameter_error
 
-  def bad_request(exception)
-    render json: {error: exception.message}, status: 400
+  private
+
+  def parameter_error(exception)
+    render json: {error: exception.message, items: exception.parameters}, status: 400
   end
 end
 ```
 
-You can, of course, use different methods for each, but I see little reason to do so.
+You can, of course, use different methods for each of the different types of error, but I see little reason to do so. If you disagree, the error types are:
+- `Despecable::InvalidParameterError`
+- `Despecable::IncorrectParameterError`
+- `Despecable::MissingParameterError`
+- `Despecable::UnrecognizedParameterError`
+
+Notice also that we have called `exception.parameters`. This is a unique little feature of `Despecable::DespecableError` that will store for you the names of the parameters in violation. This is particularly useful if you want to extract ore display the errors in a more machine-readable format.
 
 ### Despecable Controllers
 
