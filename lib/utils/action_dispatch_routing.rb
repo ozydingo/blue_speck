@@ -17,6 +17,10 @@ module Despecable
       @controller.to_s.split("::").map(&:underscore).join("/").sub(/_controller$/,"")
     end
 
+    def resource_name
+      @controller.to_s.demodulize.underscore.sub(/_controller$/,"").singularize.humanize
+    end
+
     def route_info(route)
       {
         name: route.name,
@@ -28,13 +32,39 @@ module Despecable
       }
     end
 
-    def speculate(action)
+    # TODO: put this in some output adapter class
+    def print_table(action, description = nil)
       route = @routes.find{|route| route.defaults[:action] == action.to_s} or raise "No action #{action} found in routes"
       info = route_info(route)
       spec = Despecable::Specialist.new(controller).spec(action)
-      puts "-----"
-      puts "#{info[:method]} #{action} #{info[:path]}"
-      puts spec.map{|paramspec| "  #{paramspec}"}
+      puts "<h3>#{resource_name.titleize} #{action.upcase}</h3>"
+      puts "<table class='despecable route'>"
+      puts "<tr>"
+      puts "<td> Method / URL </td>"
+      puts "<td> #{info[:method]} #{info[:path]} </td>"
+      puts "</tr>"
+      puts "<tr>"
+      puts "<td> Description </td>"
+      puts "<td> #{description} </td>"
+      puts "</tr>"
+      puts "<tr>"
+      puts "<td> Parameters </td>"
+      puts "<td>"
+      spec.each do |speck|
+        print "#{speck[:name]} ["
+        print speck[:type]
+        print "(s)" if speck[:array] || speck[:arrayble]
+        print " (#{speck[:default]})" if speck[:default]
+        print ", required" if speck[:required]
+        puts "]"
+        if speck[:in]
+          puts "<br>"
+          puts "Allowed values: #{speck[:in]}"
+        end
+        puts "<br>"
+      end
+      puts "</tr>"
+      puts "</table>"
     end
   end
 end
