@@ -21,6 +21,12 @@ module Despecable
       @controller.to_s.demodulize.underscore.sub(/_controller$/,"").singularize.humanize
     end
 
+    def describe_all
+      routes.map do |route|
+        route_info(route).merge(params: Despecable::Specialist.new(@controller).spec(route.defaults[:action]))
+      end
+    end
+
     def route_info(route)
       {
         name: route.name,
