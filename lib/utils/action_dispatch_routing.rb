@@ -46,16 +46,16 @@ module Despecable
       puts "<h3>#{resource_name.titleize} #{action.upcase}</h3>"
       puts "<table class='despecable route'>"
       puts "<tr>"
-      puts "<td> Method / URL </td>"
-      puts "<td> #{info[:method]} #{info[:path]} </td>"
+      puts "<td class=label> Method / URL </td>"
+      puts "<td class=data> #{info[:method]} #{info[:path]} </td>"
       puts "</tr>"
       puts "<tr>"
-      puts "<td> Description </td>"
-      puts "<td> #{description} </td>"
+      puts "<td class=label> Description </td>"
+      puts "<td class=data> #{description} </td>"
       puts "</tr>"
       puts "<tr>"
-      puts "<td> Parameters </td>"
-      puts "<td>"
+      puts "<td class=label> Parameters </td>"
+      puts "<td class=data>"
       spec.each do |speck|
         print "#{speck[:name]} ["
         print speck[:type]
@@ -65,7 +65,7 @@ module Despecable
         puts "]"
         if speck[:in]
           puts "<br>"
-          puts "Allowed values: #{speck[:in]}"
+          puts "&nbsp;&nbsp;(allowed values: #{speck[:in]})"
         end
         puts "<br>"
       end

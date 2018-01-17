@@ -60,6 +60,14 @@ namespace :despecable do
       template = ENV['template'] or raise "No template file provided, please use `template=path/to/file` in rake task invocation."
       controllers = YAML.load(File.read(template))
       $stderr.puts controllers
+      puts <<-EOF
+      <style>
+      table {border-collapse: collapse;}
+      td {border: 1px solid black;}
+      td.label {width: 100px;}
+      td.data {width: 500px;}
+      </style>
+      EOF
       controllers.each do |controller, keys|
         next if keys.nil?
         router = Despecable::ActionDispatchRouting.new(controller.constantize)
