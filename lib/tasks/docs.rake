@@ -3,49 +3,56 @@ namespace :despecable do
     desc "Generate a template yml file containing the routes to be doc'd"
     # TODO: preserve existing descriptions from specified file
     task :template => :environment do
-      template = ENV['template']
-      if template.nil?
-        resp = "~"
-        puts "You have not specified an existing template file. If you have one and are writing to it, this will destroy any existing data you have entered into it."
-        puts "Note: you can suppress this message by specifying `template=` (nothing after the equals sign)"
-        while resp != "y" && resp != "n"
-          print "Are you sure you want to continue (Y/n)? "
-          $stdout.flush
-          resp = $stdin.gets.chomp.downcase
-          resp = "y" if resp.empty?
+      begin
+        template = ENV['template']
+        if template.nil?
+          existing = {}
+          output = $stdout
+          $stderr.puts "Writing output to terminal"
+        else
+          existing = File.exists?(template) ? YAML.load(File.read(template)) : {}
+          if !existing.is_a?(Hash)
+            $stderr.puts "Data at #{template} appears to be corrupt. It should be a yamli-ized Hash of controllers and actions with descriptions. Please remove or fix the file and try again; run this task with a new file as output to see what the output should look like."
+            exit(1)
+          end
+          output = File.open(template, 'w')
+          $stderr.puts "Writing output to #{template}"
         end
-        exit if resp == "n"
-      end
-      existing = template.to_s.length > 0 ? YAML.load(File.read(template)) : {}
-      Rails.application.eager_load!
-      base = ENV['base']
-      if base.nil?
-        resp = "~"
-        puts "You have not specified a root controller. This will template your ENTIRE controller structure. It is more typical to specify a controller such as a root ApiController."
-        puts "Note: you can suppress this message by specifying `base=ActionController::Base`"
-        while resp != "y" && resp != "n"
-          print "Are you sure you want to continue (Y/n)? "
-          $stdout.flush
-          resp = $stdin.gets.chomp.downcase
-          resp = "y" if resp.empty?
+        Rails.application.eager_load!
+        base = ENV['base']
+        if base.nil?
+          resp = "~"
+          $stderr.puts "You have not specified a root controller. This will template your ENTIRE controller structure. It is more typical to specify a controller such as a root ApiController."
+          $stderr.puts "Note: you can suppress this message by specifying `base=ActionController::Base`"
+          while resp != "y" && resp != "n"
+            $stderr.print "Are you sure you want to continue (Y/n)? "
+            $stderr.flush
+            resp = $stdin.gets.chomp.downcase
+            resp = "y" if resp.empty?
+          end
+          exit if resp == "n"
         end
-        exit if resp == "n"
-      end
-      base = ENV['base'] ? ENV['base'].constantize : ActionController::Base
-      $stderr.puts "Mapping routes under #{base}"
-      controllers = base.descendants
-      puts "---"
-      controllers.each do |controller|
-        existing_info = existing[controller.to_s] || {}
-        router = Despecable::ActionDispatchRouting.new(controller)
-        puts "#{controller}:"
-        router.routes.each do |route|
-          action = route.defaults[:action]
-          description = existing_info[action] || "# enter description"
-          puts "  #{route.defaults[:action]}: #{description}"
+        base = ENV['base'] ? ENV['base'].constantize : ActionController::Base
+        $stderr.puts "Mapping routes under #{base}"
+        controllers = base.descendants
+        output.puts "---"
+        $stdout.puts "---" if output.is_a?(File)
+        controllers.each do |controller|
+          existing_info = existing[controller.to_s] || {}
+          router = Despecable::ActionDispatchRouting.new(controller)
+          output.puts "#{controller}:"
+          $stdout.puts "#{controller}:" if output.is_a?(File)
+          router.routes.each do |route|
+            action = route.defaults[:action]
+            description = existing_info[action] || "# enter description"
+            output.puts "  #{route.defaults[:action]}: #{description}"
+            $stdout.puts "  #{route.defaults[:action]}: #{description}" if output.is_a?(File)
+          end
         end
+        $stderr.puts "Done!"
+      ensure
+        output.close if output.is_a?(File)
       end
-      $stderr.puts "Done!"
     end
 
     desc "Auto-generate API docs from despecable usage in your controllers"
