@@ -4,8 +4,33 @@ namespace :despecable do
     # TODO: preserve existing descriptions from specified file
     task :template => :environment do
       template = ENV['template']
-      existing = template ? YAML.load(File.read(template)) : {}
+      if template.nil?
+        resp = "~"
+        puts "You have not specified an existing template file. If you have one and are writing to it, this will destroy any existing data you have entered into it."
+        puts "Note: you can suppress this message by specifying `template=` (nothing after the equals sign)"
+        while resp != "y" && resp != "n"
+          print "Are you sure you want to continue (Y/n)? "
+          $stdout.flush
+          resp = $stdin.gets.chomp.downcase
+          resp = "y" if resp.empty?
+        end
+        exit if resp == "n"
+      end
+      existing = template.to_s.length > 0 ? YAML.load(File.read(template)) : {}
       Rails.application.eager_load!
+      base = ENV['base']
+      if base.nil?
+        resp = "~"
+        puts "You have not specified a root controller. This will template your ENTIRE controller structure. It is more typical to specify a controller such as a root ApiController."
+        puts "Note: you can suppress this message by specifying `base=ActionController::Base`"
+        while resp != "y" && resp != "n"
+          print "Are you sure you want to continue (Y/n)? "
+          $stdout.flush
+          resp = $stdin.gets.chomp.downcase
+          resp = "y" if resp.empty?
+        end
+        exit if resp == "n"
+      end
       base = ENV['base'] ? ENV['base'].constantize : ActionController::Base
       $stderr.puts "Mapping routes under #{base}"
       controllers = base.descendants
