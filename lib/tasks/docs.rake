@@ -1,7 +1,6 @@
 namespace :despecable do
   namespace :docs do
     desc "Generate a template yml file containing the routes to be doc'd"
-    # TODO: preserve existing descriptions from specified file
     task :template => :environment do
       begin
         template = ENV['template']
@@ -43,10 +42,11 @@ namespace :despecable do
           output.puts "#{controller}:"
           $stdout.puts "#{controller}:" if output.is_a?(File)
           router.routes.each do |route|
-            action = route.defaults[:action]
-            description = existing_info[action] || "# enter description"
-            output.puts "  #{route.defaults[:action]}: #{description}"
-            $stdout.puts "  #{route.defaults[:action]}: #{description}" if output.is_a?(File)
+            info = router.route_info(route)
+            key = "#{info[:method]} #{info[:path]}"
+            description = existing_info[key] || "# enter description"
+            output.puts "  #{key}: #{description}"
+            $stdout.puts "  #{key}: #{description}" if output.is_a?(File)
           end
         end
         $stderr.puts "Done!"
@@ -60,11 +60,14 @@ namespace :despecable do
       template = ENV['template'] or raise "No template file provided, please use `template=path/to/file` in rake task invocation."
       controllers = YAML.load(File.read(template))
       $stderr.puts controllers
-      controllers.each do |controller, actions|
-        next if actions.nil?
+      controllers.each do |controller, keys|
+        next if keys.nil?
         router = Despecable::ActionDispatchRouting.new(controller.constantize)
-        actions.each do |action, description|
-          router.print_table(action, description)
+        infos = router.routes.map{|route| router.route_info(route)}
+        keys.each do |key, description|
+          method, path = key.split(" ")
+          info = infos.find{|infum| infum[:method] == method && infum[:path] == path} or next
+          router.print_table(info[:action], description)
         end
       end
     end
