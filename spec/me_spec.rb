@@ -45,6 +45,40 @@ describe Despecable::Me do
       expect(params[:when]).to eq(DateTime.rfc3339('2009-06-19T00:00:00-04:00'))
     end
 
+    it "raises for a incorrect-case string" do
+      me = Despecable::Me.new(x: "hello")
+      expect{me.doit{string :x, in: ["Hello"]}}.to raise_error do |error|
+        expect(error).to be_a(Despecable::IncorrectParameterError)
+        expect(error.parameters).to eq(["x"])
+      end
+    end
+
+    it "allows mixed case strings on case: false" do
+      params = Despecable::Me.new(x: "hello").doit{string :x, in: ["Hello"], case: false}
+      expect(params[:x]).to eq("hello")
+    end
+
+    it "raises for a incorrect-case string" do
+      me = Despecable::Me.new(x: "hello")
+      expect{me.doit{any :x, in: ["Hello"]}}.to raise_error do |error|
+        expect(error).to be_a(Despecable::IncorrectParameterError)
+        expect(error.parameters).to eq(["x"])
+      end
+    end
+
+    it "allows mixed case strings on case: false using 'any'" do
+      params = Despecable::Me.new(x: "hello").doit{any :x, in: ["Hello"], case: false}
+      expect(params[:x]).to eq("hello")
+    end
+
+    it "raises for a bad-length string" do
+      me = Despecable::Me.new(x: "hello")
+      expect{me.doit{string :x, length: 2}}.to raise_error do |error|
+        expect(error).to be_a(Despecable::IncorrectParameterError)
+        expect(error.parameters).to eq(["x"])
+      end
+    end
+
     it "raises for a bad integer" do
       me = Despecable::Me.new(x: "hello")
       expect{me.doit{integer :x}}.to raise_error do |error|
