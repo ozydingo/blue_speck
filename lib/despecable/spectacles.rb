@@ -17,14 +17,17 @@ module Despecable
 
     def validate_param(name, value, options)
       validate_param_presence(name, value) if options[:required]
-      validate_param_value(name, value, options[:in]) if options.key?(:in) && !value.nil?
+      validate_param_value(name, value, options) if options.key?(:in) && !value.nil?
     end
 
     def validate_param_presence(name, value)
       raise Despecable::MissingParameterError.new("Missing required parameter: '#{name}'", parameters: name) if value.nil?
     end
 
-    def validate_param_value(name, value, allowed_values)
+    def validate_param_value(name, value, options)
+      allowed_values = options[:in]
+      allowed_values = allowed_values.map{|x| x.is_a?(String) ? x.downcase : x} if options[:case] == false
+      value = value.downcase if options[:case] == false && value.is_a?(String)
       if !allowed_values.include?(value)
         msg = "Unacceptable value for parameter: '#{name}'"
         allowed_values_message = expected_values_message(allowed_values)
@@ -72,8 +75,7 @@ module Despecable
     end
 
     def string(name, value, options)
-      value = value.downcase if options[:case] == false
-      value = value.to_s
+      value = value.to_s #no-op
       validate_string_length(name, value, options) if options.key?(:length)
       return value
     end
