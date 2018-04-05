@@ -44,7 +44,7 @@ module Despecable
 
     def _spec(name, type, options = {})
       @specd << (name)
-      if !params.key?(name) && options[:default]
+      if !params.key?(name) && options.key?(:default)
         params[name] = options[:default]
       elsif options[:array]
         values = @spectacles.arrayify(params[name])
