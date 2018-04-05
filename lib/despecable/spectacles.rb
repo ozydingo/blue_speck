@@ -28,7 +28,7 @@ module Despecable
       if !allowed_values.include?(value)
         msg = "Unacceptable value for parameter: '#{name}'"
         allowed_values_message = expected_values_message(allowed_values)
-        msg += "; acceptable values are" + allowed_values_message if allowed_values_message.present?
+        msg += "; acceptable values are" + allowed_values_message if !allowed_values_message.nil?
         raise Despecable::IncorrectParameterError.new(msg, parameters: name)
       end
     end
@@ -39,7 +39,7 @@ module Despecable
       if !allowed_lengths.include?(value.length)
         msg = "Unacceptable length for parameter: '#{name}'"
         allowed_values_message = expected_values_message(allowed_lengths)
-        msg += "; acceptable lengths are" + allowed_values_message if allowed_values_message.present?
+        msg += "; acceptable lengths are" + allowed_values_message if !allowed_values_message.nil?
         raise Despecable::IncorrectParameterError.new(msg, parameters: name)
       end
     end
@@ -101,7 +101,7 @@ module Despecable
     end
 
     def file(name, value, options)
-      raise Despecable::InvalidParameterError.new("File upload type required for parameter: '#{name}'" , parameters: name) if !(value.respond_to?(:original_filename) && value.original_filename.present?)
+      raise Despecable::InvalidParameterError.new("File upload type required for parameter: '#{name}'" , parameters: name) if !(value.respond_to?(:original_filename) && value.original_filename.to_s.length > 0)
       return value
     end
 
