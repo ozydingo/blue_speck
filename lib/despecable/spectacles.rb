@@ -25,7 +25,23 @@ module Despecable
     end
 
     def validate_param_value(name, value, allowed_values)
-      raise Despecable::IncorrectParameterError.new("Unacceptable value for parameter: '#{name}'", parameters: name) if !allowed_values.include?(value)
+      msg = "Unacceptable value for parameter: '#{name}'"
+      allowed_values_message = expected_values_message(allowed_values)
+      msg += "; acceptable values are" + allowed_values_message if allowed_values_message.present?
+      raise Despecable::IncorrectParameterError.new(msg, parameters: name) if !allowed_values.include?(value)
+    end
+
+    def expected_values_message(allowed_values)
+      case allowed_values
+      when Array
+        msg = ": " + allowed_values.slice(0..99).join(", ")
+        msg += ", ... [truncated]" if allowed_values.length > 100
+        return msg
+      when Range
+        " between #{allowed_values.first} and #{allowed_values.last}"
+      else
+        nil
+      end
     end
 
     def integer(name, value)
