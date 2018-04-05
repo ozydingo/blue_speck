@@ -8,6 +8,8 @@ Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 So let's make it easy!
 
 ## What's new (just the highlights)
+### v 0.2.0
+Allow case, length options for String params
 ### v 0.1.0
 Added basic rspec test suite!
 ### v 0.0.0
@@ -28,8 +30,8 @@ class WidgetsController < ApplicationController
     despec!(strict: true) do
       string :api_key, required: true
       integer :id, in: 1..999_999_999, array: true
-      string :name
-      string :function, in: ["foo", "bar"]
+      string :name, length: 1..100
+      string :function, in: ["foo", "bar"], case: false
       datetime :created_after
       boolean :active
       boolean :show_secret, default: false
@@ -76,7 +78,11 @@ Next, you might notice the first `required: true` attached to the `string :api_k
 
 #### Value
 
-Lastly, you should see the `string :function, in: ["foo", "bar"]`. This will check that the coerced param is contained within the set (`Array` or `Range`) specified. If not, it will raise a `Despecable::IncorrectParameterError`
+You should see the `string :function, in: ["foo", "bar"]`. This will check that the coerced param is contained within the set (`Array` or `Range`) specified. If not, it will raise a `Despecable::IncorrectParameterError`
+
+#### String Options
+
+Lastly, you can see the `case: false, length: 1..100` options on some of the string parameters. The `case` option is to allow case-insensitive matching if you are validating param values using `in`. the `length` options is a number, array, or range that will raise a `Despecable::IncorrectParameterError` if the parameter is present and not in the allowed lengths.
 
 #### Arrayification
 

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'despecable'
-  s.version     = '0.1.2'
+  s.version     = '0.2.0'
   s.date        = '2018-01-05'
   s.summary     = "Easy self-documenting parameter specifications for API routes in Rails"
   s.description = "Write self-documenting parameter validation and type-casting in your API actions. Docs and development at https://github.com/ozydingo/despecable."
