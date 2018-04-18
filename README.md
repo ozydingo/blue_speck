@@ -5,7 +5,18 @@ Keeping API docs in sync with the code is a pain. It's nasty. Odious. It's ...
 
 ... despecable.
 
-So let's make it easy!
+So let's make it as easy as
+
+```ruby
+despec!(strict: true) do
+  string :api_key, required: true
+  integer :id, in: 1..999_999_999, array: true
+  string :function, in: ["foo", "bar"], case: false
+  datetime :created_after
+  boolean :active, default: true
+end
+```
+
 
 ## What's new (just the highlights)
 ### v 0.2.0
