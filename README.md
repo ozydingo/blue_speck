@@ -58,7 +58,9 @@ end
 
 What functionality is that? I'm glad you asked!
 
-First, let me note that `despec!` modifies the `params` hash in place. This is my typical use case: just get the params into the format I want them. Use `despec` (without the bang) if you do not want this behavior: it will `deep_dup` the params hash first.
+First, let me note that `despec!` modifies the `params` hash in place. This is my typical use case: just get the params into the format I want them. Use `despec` (without the bang) if you do not want this behavior: it will `dup` the params hash first.
+
+**IMPORTANT**: that's `dup`, not `deep_dup`. If you go ahead and modify in-place any Arrays, Hashes, etc in your returned `params` object then the original params values will *also* be modified!
 
 ### Parameter Coercion
 

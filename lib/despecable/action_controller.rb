@@ -1,7 +1,7 @@
 module Despecable
   module ActionController
     def despec(*args, strict: false, &blk)
-      despecable_me(params.deep_dup).doit(*args, strict: strict, &blk)
+      despecable_me(params.dup).doit(*args, strict: strict, &blk)
     end
 
     def despec!(*args, &blk)
