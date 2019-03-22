@@ -1,4 +1,5 @@
 require "spec_helper"
+require "action_controller"
 
 # Mock controller for testint
 class Controller
@@ -25,7 +26,7 @@ end
 describe Despecable::ActionController do
   describe ".despec" do
     it "returns but does not overwrite parsed params" do
-      params = {integer: "1", string: "hello"}
+      params = ActionController::Parameters.new({integer: "1", string: "hello"})
       controller = Controller.new(params)
       parsed_params = controller.despec do
         integer :integer
@@ -37,7 +38,7 @@ describe Despecable::ActionController do
     end
 
     it "barfs in strict mode with unspec'd params" do
-      params = {integer: "1", string: "hello"}
+      params = ActionController::Parameters.new({integer: "1", string: "hello"})
       controller = Controller.new(params)
       expect {controller.despec(strict: true) do
         integer :integer
@@ -50,7 +51,7 @@ describe Despecable::ActionController do
 
   describe ".despec!" do
     it "overwrites parsed params" do
-      params = {integer: "1", string: "hello"}
+      params = ActionController::Parameters.new({integer: "1", string: "hello"})
       controller = Controller.new(params)
       parsed_params = controller.despec! do
         integer :integer
