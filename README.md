@@ -19,6 +19,8 @@ end
 
 
 ## What's new (just the highlights)
+### v 0.3.0
+Update for Rail 5, which was barfing on `ActionController::Parameters#merge`
 ### v 0.2.0
 Allow case, length options for String params
 ### v 0.1.0
