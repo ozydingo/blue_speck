@@ -93,6 +93,16 @@ describe Despecable::Me do
       expect(params[:x]).to eq("hello")
     end
 
+    it "matches a string matching a Range length" do
+      params = Despecable::Me.new(x: "hello").doit{string :x, length: 2..8}
+      expect(params[:x]).to eq("hello")
+    end
+
+    it "matches a string matching a int length" do
+      params = Despecable::Me.new(x: "hello").doit{string :x, length: 5}
+      expect(params[:x]).to eq("hello")
+    end
+
     it "raises for a bad-length string" do
       me = Despecable::Me.new(x: "hello")
       expect{me.doit{string :x, length: 2}}.to raise_error do |error|
