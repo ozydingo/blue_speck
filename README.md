@@ -120,7 +120,8 @@ string :color, in: ["red", "green", "blue"]
 For string params, you can specify case sensitivity and allowable lengths, or else face the wrath of the `Despecable::IncorrectParameterError`
 
 ```ruby
-string :token, length: 4..32
+string :token, length: 16
+string :tag,   length: 4..32
 string :drink, in: ["Coffee", "Tea"], case: false
 ```
 
