@@ -86,6 +86,7 @@ Declarations in the above example such as `string` and `integer` are type declar
 - `date`
 - `file`
 - `any`
+- `custom`
 
 If a parameter cannot be converted, Despecable will raise a `Despecable::InvalidParamter` error with a useful message that you can safely pass directly to the client along with your favorite status code somewhere in the 400s. For example:
 
@@ -202,6 +203,16 @@ If you have no additional parameters for a specific action other than the ones f
 ```ruby
 depsec(strict: true) do
   # No additional parameters.
+end
+```
+
+### Custom types
+
+If the standard set of type parsers aren't good enough for ya, you can use `custom` with a provided block. The block should take arguments: `name, value, options`, where `name` is the name of the parameter, `value` is the value straight out of the `params` object, and `options` is a Hash that contains the above options such as `in:`, `array:`, etc. You can use any of these options, of course, but the standard options are still parsed by Despecable so you don't have to worry about reimplementing any of those features.
+
+```ruby
+custom(:doubled) do |name, value, options|
+  value.to_i * 2
 end
 ```
 
