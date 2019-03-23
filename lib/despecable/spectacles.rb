@@ -9,8 +9,8 @@ module Despecable
       value.to_s.split(",")
     end
 
-    def read(name, value, type, options)
-      value = public_send(type, name, value, options) unless value.nil?
+    def read(name, value, type, options, &blk)
+      value = public_send(type, name, value, options, &blk) unless value.nil?
       validate_param(name, value, options)
       return value
     end
@@ -109,6 +109,10 @@ module Despecable
 
     def any(name, value, options)
       value
+    end
+
+    def custom(name, value, options)
+      return yield(name, value, options)
     end
   end
 end

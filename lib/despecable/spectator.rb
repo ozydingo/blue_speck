@@ -40,21 +40,25 @@ module Despecable
       _spec(name, :any, options)
     end
 
+    def custom(name, options = {}, &blk)
+      _spec(name, :custom, options, &blk)
+    end
+
     private
 
-    def _spec(name, type, options = {})
+    def _spec(name, type, options = {}, &blk)
       @specd << (name)
       if !params.key?(name) && options.key?(:default)
         params[name] = options[:default]
       elsif options[:array]
         values = @spectacles.arrayify(params[name])
-        params[name] = values.map{|val| @spectacles.read(name, val, type, options)}
+        params[name] = values.map{|val| @spectacles.read(name, val, type, options, &blk)}
       elsif options[:arrayable] && @spectacles.arrayable?(params[name])
         # TODO: deprecate arrayable in favor of array
         values = @spectacles.arrayify(params[name])
-        params[name] = values.map{|val| @spectacles.read(name, val, type, options)}
+        params[name] = values.map{|val| @spectacles.read(name, val, type, options, &blk)}
       else
-        value = @spectacles.read(name, params[name], type, options)
+        value = @spectacles.read(name, params[name], type, options, &blk)
         params[name] = value if params.key?(name)
       end
     end

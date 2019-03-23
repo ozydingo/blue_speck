@@ -45,6 +45,28 @@ describe Despecable::Me do
       expect(params[:when]).to eq(DateTime.rfc3339('2009-06-19T00:00:00-04:00'))
     end
 
+    it "uses a custom converter, still allowing a default" do
+      params = Despecable::Me.new(doubled: '1').doit do
+        custom :doubled do |name, value, options|
+          value.to_i * 2
+        end
+        custom :default, default: 0 do |name, value, options|
+          value.to_i * 2
+        end
+      end
+      expect(params[:doubled]).to eq(2)
+      expect(params[:default]).to eq(0)
+    end
+
+    it "arraifies a custom param" do
+      params = Despecable::Me.new(doubled: '1,2').doit do
+        custom :doubled, array: true do |name, value, options|
+          value.to_i * 2
+        end
+      end
+      expect(params[:doubled]).to eq([2,4])
+    end
+
     it "raises for a incorrect-case string" do
       me = Despecable::Me.new(x: "hello")
       expect{me.doit{string :x, in: ["Hello"]}}.to raise_error do |error|
