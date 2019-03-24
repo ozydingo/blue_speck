@@ -22,12 +22,8 @@ module Despecable
 
     def parse(name, value, type, options, &blk)
       value = public_send(type, name, value, options, &blk)
-      validate_param(name, value, options)
-      return value
-    end
-
-    def validate_param(name, value, options)
       validate_param_value(name, value, options) if options.key?(:in) && !value.nil?
+      return value
     end
 
     def validate_param_value(name, value, options)
