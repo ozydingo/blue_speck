@@ -15,39 +15,39 @@ module Despecable
     end
 
     def integer(name, options = {})
-      @params[name] = _spec(name, :integer, options)
+      _spec(name, :integer, options)
     end
 
     def string(name, options = {})
-      @params[name] = _spec(name, :string, options)
+      _spec(name, :string, options)
     end
 
     def boolean(name, options = {})
-      @params[name] = _spec(name, :boolean, options)
+      _spec(name, :boolean, options)
     end
 
     def date(name, options = {})
-      @params[name] = _spec(name, :date, options)
+      _spec(name, :date, options)
     end
 
     def datetime(name, options = {})
-      @params[name] = _spec(name, :datetime, options)
+      _spec(name, :datetime, options)
     end
 
     def float(name, options = {})
-      @params[name] = _spec(name, :float, options)
+      _spec(name, :float, options)
     end
 
     def file(name, options = {})
-      @params[name] = _spec(name, :file, options)
+      _spec(name, :file, options)
     end
 
     def any(name, options = {})
-      @params[name] = _spec(name, :any, options)
+      _spec(name, :any, options)
     end
 
     def custom(name, options = {}, &blk)
-      @params[name] = _spec(name, :custom, options, &blk)
+      _spec(name, :custom, options, &blk)
     end
 
     private
@@ -55,16 +55,20 @@ module Despecable
     def _spec(name, type, options = {}, &blk)
       @specd << (name)
       if !@input_params.key?(name) && options.key?(:default)
-        return options[:default]
+        @params[name] = options[:default]
+      elsif !@input_params.key?(name) && options.key?(:required)
+        ::Kernel.raise ::Despecable::MissingParameterError.new("Missing required parameter: '#{name}'", parameters: name)
+      elsif !@input_params.key?(name)
+        return
       elsif options[:array]
         values = @spectacles.arrayify(@input_params[name])
-        return values.map{|val| @spectacles.read(name, val, type, options, &blk)}
+        @params[name] = values.map{|val| @spectacles.read(name, val, type, options, &blk)}
       elsif options[:arrayable] && @spectacles.arrayable?(@input_params[name])
         # TODO: deprecate arrayable in favor of array
         values = @spectacles.arrayify(@input_params[name])
-        return values.map{|val| @spectacles.read(name, val, type, options, &blk)}
+        @params[name] = values.map{|val| @spectacles.read(name, val, type, options, &blk)}
       else
-        return @spectacles.read(name, @input_params[name], type, options, &blk)
+        @params[name] = @spectacles.read(name, @input_params[name], type, options, &blk)
       end
     end
   end

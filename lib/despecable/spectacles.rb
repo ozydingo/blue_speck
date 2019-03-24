@@ -16,12 +16,7 @@ module Despecable
     end
 
     def validate_param(name, value, options)
-      validate_param_presence(name, value) if options[:required]
       validate_param_value(name, value, options) if options.key?(:in) && !value.nil?
-    end
-
-    def validate_param_presence(name, value)
-      raise Despecable::MissingParameterError.new("Missing required parameter: '#{name}'", parameters: name) if value.nil?
     end
 
     def validate_param_value(name, value, options)
