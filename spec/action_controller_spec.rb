@@ -57,6 +57,16 @@ describe Despecable::ActionController do
         expect(error.parameters).to eq(["string"])
       end
     end
+
+    it "doesn't add param keys that are not requested" do
+      params = ActionController::Parameters.new({x: "1", z: "3"})
+      controller = Controller.new(params)
+      parsed_params = controller.despec do
+        integer :x
+        string :y
+      end
+      expect(parsed_params.keys).to eq(["x", "z"])
+    end
   end
 
   describe ".despec!" do
@@ -70,6 +80,16 @@ describe Despecable::ActionController do
       expect(params[:x]).to eq(1)
       expect(params[:y]).to eq("2")
       expect(params[:z]).to eq("3")
+    end
+
+    it "doesn't add param keys that are not requested" do
+      params = ActionController::Parameters.new({x: "1", z: "3"})
+      controller = Controller.new(params)
+      parsed_params = controller.despec! do
+        integer :x
+        string :y
+      end
+      expect(parsed_params.keys).to eq(["x", "z"])
     end
   end
 end
