@@ -236,35 +236,5 @@ describe Despecable::Me do
         expect(params[:x]).to eq("world")
       end
     end
-
-    context "when strict mode is used" do
-      it "raises when an unrecognized paramter is used" do
-        me = Despecable::Me.new(x: "hi", y: "over", z: "there")
-        expect do
-          me.doit(strict: true){string :x}
-        end.to raise_error do |error|
-          expect(error).to be_a(Despecable::UnrecognizedParameterError)
-          expect(error.parameters).to eq(["y", "z"])
-        end
-      end
-
-      it "remembers previously spec'd parameters" do
-        me = Despecable::Me.new(x: "hi", y: "over", z: "there")
-        expect do
-          me.doit{string :x; string :y}
-          me.doit(strict: true){string :z}
-        end.to_not raise_error
-      end
-
-    end
-
-    context "when strict mode is not used" do
-      it "passes when an unrecognized paramter is used" do
-        me = Despecable::Me.new(x: "hi", y: "over", z: "there")
-        expect do
-          me.doit{string :x}
-        end.to_not raise_error
-      end
-    end
   end
 end

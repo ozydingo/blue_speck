@@ -47,17 +47,6 @@ describe Despecable::ActionController do
       expect(parsed_params[:integer]).to eq(1)
     end
 
-    it "barfs in strict mode with unspec'd params" do
-      params = ActionController::Parameters.new({integer: "1", string: "hello"})
-      controller = Controller.new(params)
-      expect {controller.despec(strict: true) do
-        integer :integer
-      end}.to raise_error do |error|
-        expect(error).to be_a(Despecable::UnrecognizedParameterError)
-        expect(error.parameters).to eq(["string"])
-      end
-    end
-
     it "doesn't add param keys that are not requested" do
       params = ActionController::Parameters.new({x: "1", z: "3"})
       controller = Controller.new(params)
@@ -66,6 +55,49 @@ describe Despecable::ActionController do
         string :y
       end
       expect(parsed_params.keys).to eq(["x", "z"])
+    end
+
+    it "barfs in strict mode with unspec'd params" do
+      params = ActionController::Parameters.new({x: "1", y: "2", z: "3"})
+      controller = Controller.new(params)
+      expect {
+        controller.despec(strict: true) do
+          integer :x
+        end
+      }.to raise_error do |error|
+        expect(error).to be_a(Despecable::UnrecognizedParameterError)
+        expect(error.parameters).to eq(["y", "z"])
+      end
+    end
+
+    it "remembers params spec'd in previous despec calls" do
+      params = ActionController::Parameters.new({x: "1", y: "2", z: "3"})
+      controller = Controller.new(params)
+      controller.despec do
+        integer :x
+      end
+      expect {
+        controller.despec(strict: true) do
+          integer :y
+          integer :z
+        end
+      }.to_not raise_error
+    end
+
+    it "still barfs on a second call if at least one param was unspec'd" do
+      params = ActionController::Parameters.new({x: "1", y: "2", z: "3"})
+      controller = Controller.new(params)
+      controller.despec do
+        integer :x
+      end
+      expect {
+        controller.despec(strict: true) do
+          integer :y
+        end
+      }.to raise_error do |error|
+        expect(error).to be_a(Despecable::UnrecognizedParameterError)
+        expect(error.parameters).to eq(["z"])
+      end
     end
   end
 
