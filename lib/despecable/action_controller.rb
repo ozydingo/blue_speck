@@ -1,15 +1,20 @@
 module Despecable
   module ActionController
     def despec(*args, strict: false, &blk)
-      despecable_me(params.dup).doit(*args, strict: strict, &blk)
+      output_params = params.dup
+      parsed = despecable_me(output_params).doit(*args, strict: strict, &blk)
+      parsed.each do |key, val|
+        output_params[key] = val
+      end
+      return output_params
     end
 
-    def despec!(*args, &blk)
-      despec(*args, &blk)
-      # Loop in place of merge due to unpermitted params restriction
-      despecable_me.params.each do |key, val|
+    def despec!(*args, strict: false, &blk)
+      parsed = despecable_me(params).doit(*args, strict: strict, &blk)
+      parsed.each do |key, val|
         params[key] = val
       end
+      return params
     end
 
     def despecable_me(params = {})
