@@ -10,7 +10,18 @@ module Despecable
     end
 
     def read(name, value, type, options, &blk)
-      value = public_send(type, name, value, options, &blk) unless value.nil?
+      if options[:array]
+        arrayify(value).map{|val| parse(name, val, type, options, &blk)}
+      elsif options[:arrayable] && arrayable?(value)
+        # TODO: :arrayable is deprecated in favor of :array
+        arrayify(value).map{|val| parse(name, val, type, options, &blk)}
+      else
+        parse(name, value, type, options, &blk)
+      end
+    end
+
+    def parse(name, value, type, options, &blk)
+      value = public_send(type, name, value, options, &blk)
       validate_param(name, value, options)
       return value
     end
