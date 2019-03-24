@@ -17,6 +17,9 @@ module Despecable
       return params
     end
 
+    # A cached instance of Despecable::Me will keep track of all despec calls
+    # in a given request / action. This allows despec to be called multiple
+    # times (e.g. in before_actions) and keep track of all spec'd params
     def despecable_me(params = {})
       supplied_params = request.query_parameters.dup
       # Loop in place of merge due to unpermitted params restriction
