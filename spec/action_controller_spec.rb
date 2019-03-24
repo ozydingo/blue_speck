@@ -25,16 +25,26 @@ end
 
 describe Despecable::ActionController do
   describe ".despec" do
-    it "returns but does not overwrite parsed params" do
-      params = ActionController::Parameters.new({integer: "1", string: "hello"})
+    it "parses and merges params" do
+      params = ActionController::Parameters.new({x: "1", y: "2", z: "3"})
+      controller = Controller.new(params)
+      parsed_params = controller.despec do
+        integer :x
+        string :y
+      end
+      expect(parsed_params[:x]).to eq(1)
+      expect(parsed_params[:y]).to eq("2")
+      expect(parsed_params[:z]).to eq("3")
+    end
+
+    it "does not overwrite params" do
+      params = ActionController::Parameters.new({integer: "1"})
       controller = Controller.new(params)
       parsed_params = controller.despec do
         integer :integer
       end
-      expect(parsed_params[:integer]).to eq(1)
       expect(params[:integer]).to eq("1")
-      expect(parsed_params[:string]).to eq("hello")
-      expect(params[:string]).to eq("hello")
+      expect(parsed_params[:integer]).to eq(1)
     end
 
     it "barfs in strict mode with unspec'd params" do
@@ -50,16 +60,16 @@ describe Despecable::ActionController do
   end
 
   describe ".despec!" do
-    it "overwrites parsed params" do
-      params = ActionController::Parameters.new({integer: "1", string: "hello"})
+    it "overwrites and merges params" do
+      params = ActionController::Parameters.new({x: "1", y: "2", z: "3"})
       controller = Controller.new(params)
-      parsed_params = controller.despec! do
-        integer :integer
+      controller.despec! do
+        integer :x
+        string :y
       end
-      expect(parsed_params[:integer]).to eq(1)
-      expect(params[:integer]).to eq(1)
-      expect(parsed_params[:string]).to eq("hello")
-      expect(params[:string]).to eq("hello")
+      expect(params[:x]).to eq(1)
+      expect(params[:y]).to eq("2")
+      expect(params[:z]).to eq("3")
     end
   end
 end
