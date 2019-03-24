@@ -1,14 +1,5 @@
 module Despecable
   class Spectacles
-    def arrayable?(value)
-      value.is_a?(::Array) || /,/ =~ value.to_s
-    end
-
-    def arrayify(value)
-      return value if value.is_a?(Array)
-      value.to_s.split(",")
-    end
-
     def read(name, value, type, options, &blk)
       if options[:array]
         arrayify(value).map{|val| parse(name, val, type, options, &blk)}
@@ -18,6 +9,15 @@ module Despecable
       else
         parse(name, value, type, options, &blk)
       end
+    end
+
+    def arrayable?(value)
+      value.is_a?(::Array) || /,/ =~ value.to_s
+    end
+
+    def arrayify(value)
+      return value if value.is_a?(Array)
+      value.to_s.split(",")
     end
 
     def parse(name, value, type, options, &blk)
